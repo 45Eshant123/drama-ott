@@ -13,7 +13,7 @@ const DramaCard = ({ drama }) => {
         : `/drama/${drama.id}`;
 
     return (
-        <div className="group relative flex-none w-[160px] sm:w-[200px] md:w-[240px] snap-start">
+        <div className="group relative flex-none w-[150px] sm:w-[180px] md:w-[220px] snap-start">
             <Link to={`/drama/${drama.id}`} className="block">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-card shadow-lg transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl group-hover:shadow-primary/10">
                     {drama.posterUrl ? (

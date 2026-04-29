@@ -223,7 +223,8 @@ const SearchPage = () => {
 							))}
 						</div>
 					) : dramas.length > 0 ? (
-						<div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+						<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+			
 							{dramas.map((drama) => (
 								<div key={drama.id} className="min-w-0">
 									<DramaCard drama={drama} />
