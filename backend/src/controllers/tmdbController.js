@@ -94,3 +94,80 @@ export const importSeries = async (req, res) => {
         res.status(500).json({ error: message });
     }
 };
+
+const extractStreamtapeId = (url) => {
+    try {
+        const u = new URL(url);
+        // streamtape urls like https://streamtape.com/e/abcd1234
+        const parts = u.pathname.split("/").filter(Boolean);
+        const idx = parts.indexOf("e");
+        if (idx >= 0 && parts[idx + 1]) return parts[idx + 1];
+        // fallback: last segment
+        return parts[parts.length - 1] || null;
+    } catch {
+        return null;
+    }
+};
+
+const buildStreamtapeUrl = (id) => (id ? `https://streamtape.com/e/${id}` : "");
+
+const buildStreamtapeThumb = (id) => (id ? `https://streamtape.com/get_video?id=${id}` : "");
+
+const normalizeEpisodeEntry = (entry) => {
+    if (!entry) return null;
+
+    if (typeof entry === "string") {
+        const id = extractStreamtapeId(entry);
+        return id
+            ? { source: "streamtape", url: buildStreamtapeUrl(id), thumbnail: buildStreamtapeThumb(id) }
+            : { source: "unknown", url: entry };
+    }
+
+    const out = {};
+    if (entry.url) {
+        out.url = String(entry.url);
+        const id = extractStreamtapeId(out.url);
+        if (id) {
+            out.source = "streamtape";
+            out.thumbnail = buildStreamtapeThumb(id);
+        }
+    }
+
+    if (entry.title) out.title = String(entry.title);
+    if (entry.episodeNumber !== undefined) out.episodeNumber = Number(entry.episodeNumber);
+    if (entry.duration) out.duration = entry.duration;
+
+    return out;
+};
+
+export const addEpisodesFromLinks = async (req, res) => {
+    try {
+        const { id } = req.params; // content id
+        const { links, episodes } = req.body || {};
+
+        let arr = [];
+        if (Array.isArray(episodes) && episodes.length) arr = episodes.map(normalizeEpisodeEntry).filter(Boolean);
+        else if (Array.isArray(links) && links.length) arr = links.map((l) => normalizeEpisodeEntry(l)).filter(Boolean);
+
+        if (!arr.length) {
+            return res.status(400).json({ message: "No episodes or links provided" });
+        }
+
+        const record = await Content.findById(id);
+        if (!record) return res.status(404).json({ message: "Content not found" });
+
+        // merge: append episodes preserving order; if episodeNumber present, set explicitly
+        const existing = Array.isArray(record.episodes) ? record.episodes.slice() : [];
+        for (const e of arr) {
+            existing.push(e);
+        }
+
+        record.episodes = existing;
+        await record.save();
+
+        return res.json({ message: "Episodes added", item: record });
+    } catch (error) {
+        console.error('addEpisodesFromLinks error:', error);
+        return res.status(500).json({ message: "Failed to add episodes" });
+    }
+};

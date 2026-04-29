@@ -1,5 +1,5 @@
 const apiClient = {
-    baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:3001',
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     token: localStorage.getItem('authToken'),
 
     setToken(token) {
@@ -108,6 +108,44 @@ const apiClient = {
     async getShowRecommendations(showId, page = 1) {
         return this.request(`/content/${showId}/recommendations?page=${page}`, {
             method: 'GET',
+        });
+    },
+
+    async getWatchlistItem(dramaId) {
+        return this.request(`/library/me/watchlist/${dramaId}`, {
+            method: 'GET',
+        });
+    },
+
+    async addWatchlistItem(dramaId) {
+        return this.request('/library/me/watchlist', {
+            method: 'POST',
+            body: JSON.stringify({ dramaId }),
+        });
+    },
+
+    async removeWatchlistItem(dramaId) {
+        return this.request(`/library/me/watchlist/${dramaId}`, {
+            method: 'DELETE',
+        });
+    },
+
+    async saveWatchHistoryItem(payload) {
+        return this.request('/library/me/watch-history', {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+        });
+    },
+
+    async getWatchHistoryItem(episodeId) {
+        return this.request(`/library/me/watch-history/${episodeId}`, {
+            method: 'GET',
+        });
+    },
+
+    async markWatchHistoryCompleted(episodeId) {
+        return this.request(`/library/me/watch-history/${episodeId}/completed`, {
+            method: 'PATCH',
         });
     },
 };

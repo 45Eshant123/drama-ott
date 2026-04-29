@@ -151,9 +151,10 @@ const SearchPage = () => {
 	);
 
 	return (
-		<div className="container mx-auto px-4 py-8 min-h-screen">
+		<div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black text-white">
+			<div className="mx-auto max-w-screen-2xl px-4 py-8">
 
-			<div className="flex flex-col md:flex-row gap-8">
+				<div className="flex flex-col md:flex-row gap-8">
 
 				{/* SIDEBAR */}
 				<aside className="hidden md:block w-64 space-y-6">
@@ -172,8 +173,8 @@ const SearchPage = () => {
 
 				</aside>
 
-				{/* MAIN */}
-				<main className="flex-1">
+					{/* MAIN */}
+					<main className="flex-1">
 
 					{/* MOBILE */}
 					<div className="md:hidden flex gap-2 mb-6">
@@ -200,37 +201,43 @@ const SearchPage = () => {
 					</div>
 
 					{/* HEADER */}
-					<div className="mb-6 flex justify-between">
-						<h1 className="text-2xl font-bold">
-							{query ? `Results for "${query}"` : 'Browse Dramas'}
-						</h1>
-						<span className="text-sm">
-							{loading ? 'Searching...' : `${totalItems} found`}
+					<div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+						<div>
+							<p className="text-xs uppercase tracking-[0.35em] text-red-400/80 mb-2">Search</p>
+							<h1 className="text-3xl md:text-4xl font-black tracking-tight">
+								{query ? `Results for "${query}"` : 'Browse Dramas'}
+							</h1>
+						</div>
+						<span className="text-sm text-zinc-400">
+							{loading ? 'Searching...' : `${totalItems} titles`}
 						</span>
 					</div>
 
 					{/* RESULTS */}
 					{loading ? (
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+						<div className="flex gap-4 overflow-x-auto pb-3 snap-x snap-mandatory">
 							{[...Array(10)].map((_, i) => (
-								<Skeleton key={i} className="aspect-[2/3]" />
+								<div key={i} className="min-w-[180px] md:min-w-[220px] snap-start">
+									<Skeleton className="aspect-[2/3] rounded-xl bg-white/10" />
+								</div>
 							))}
 						</div>
 					) : dramas.length > 0 ? (
-						<div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-							{dramas.map(drama => (
-								<div key={drama.id} className="p-2 hover:scale-105 transition">
+						<div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+							{dramas.map((drama) => (
+								<div key={drama.id} className="min-w-0">
 									<DramaCard drama={drama} />
 								</div>
 							))}
 						</div>
 					) : (
-						<div className="text-center py-20 text-gray-400">
+						<div className="text-center py-20 text-zinc-400 border border-dashed border-white/10 rounded-2xl bg-white/5">
 							No dramas found
 						</div>
 					)}
 
-				</main>
+					</main>
+				</div>
 			</div>
 		</div>
 	);

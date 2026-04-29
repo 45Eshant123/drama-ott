@@ -8,6 +8,7 @@ import {
 	searchContent,
 	updateContentTrailer
 } from "../controllers/contentController.js";
+import { createContent, updateContent } from "../controllers/contentController.js";
 
 const router = express.Router();
 
@@ -18,5 +19,7 @@ router.get("/search", searchContent);
 router.get("/", getContentList);
 router.patch("/:id/trailer", updateContentTrailer);
 router.get("/:id", getContentById);
+router.post("/", createContent);
+router.put("/:id", updateContent);
 
 export default router;

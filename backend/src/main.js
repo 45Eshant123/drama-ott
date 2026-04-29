@@ -31,15 +31,19 @@ const allowedOrigins = (process.env.CORS_ORIGIN || '')
     .filter(Boolean);
 
 app.use(helmet());
-app.use(cors({
-    origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            return callback(null, true);
-        }
-        return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-}));
+if (process.env.NODE_ENV === 'production') {
+    app.use(cors({
+        origin(origin, callback) {
+            if (allowedOrigins.length === 0) return callback(new Error('CORS origin not configured'));
+            if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+            return callback(new Error('Not allowed by CORS'));
+        },
+        credentials: true,
+    }));
+} else {
+    // Development: allow all origins to avoid CORS friction in local environment
+    app.use(cors({ origin: true, credentials: true }));
+}
 app.use(morgan('combined'));
 app.use(globalRateLimit);
 

@@ -28,7 +28,7 @@ function App() {
                             <Route path="/login" element={<LoginPage />} />
                             <Route path="/signup" element={<SignupPage />} />
                             <Route path="/drama/:id" element={<DramaDetailsPage />} />
-                            <Route path="/watch/:episodeId" element={<VideoPlayerPage />} />
+                            <Route path="/watch/:id" element={<VideoPlayerPage />} />
                             <Route
                                 path="/profile"
                                 element={

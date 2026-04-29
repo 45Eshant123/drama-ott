@@ -19,7 +19,8 @@ import {
 } from '@/components/ui/sheet';
 
 const Header = () => {
-    const { isAuthenticated, currentUser, logout } = useAuth();
+    const auth = useAuth() || {};
+    const { isAuthenticated, currentUser, logout } = auth;
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
