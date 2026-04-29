@@ -32,6 +32,15 @@ const contentSchema = new mongoose.Schema(
             default: []
         },
 
+        episodes: [
+            {
+                episodeNumber: Number,
+                title: String,
+                videoUrl: String,
+                thumbnail: String
+            }
+        ],
+
         releaseYear: Number,
 
         rating: {
