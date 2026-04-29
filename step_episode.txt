@@ -1,0 +1,221 @@
+Theek hai — main tumhe **complete step-by-step API guide** de raha hoon (Thunder Client ready), jisme:
+
+* ✔ exact URL (http wala)
+* ✔ method
+* ✔ body (har jaha needed ho)
+* ✔ kya hoga result
+
+Tum seedha copy–paste karke test kar sakte ho.
+
+---
+
+# 🌐 BASE URL
+
+```bash
+http://localhost:3001/api/content
+```
+
+---
+
+# ✅ 1. CREATE CONTENT (POST)
+
+### 🔗 URL:
+
+```bash
+POST http://localhost:3001/api/content
+```
+
+### 📦 Body:
+
+```json
+{
+  "title": "Sold Out on You",
+  "type": "series",
+  "description": "Romantic drama",
+  "thumbnail": "https://image.jpg",
+  "genre": ["romance"],
+  "releaseYear": 2026,
+  "rating": 8.5,
+  "episodes": [
+    {
+      "episodeNumber": 1,
+      "title": "Episode 1",
+      "videoUrl": "url1"
+    },
+    {
+      "episodeNumber": 2,
+      "title": "Episode 2",
+      "videoUrl": "url2"
+    }
+  ]
+}
+```
+
+---
+
+# ✅ 2. GET ALL CONTENT
+
+```bash
+GET http://localhost:3001/api/content
+```
+
+---
+
+# ✅ 3. GET SINGLE CONTENT
+
+```bash
+GET http://localhost:3001/api/content/{id}
+```
+
+---
+
+# ✅ 4. FULL UPDATE (PUT ⚠️ REPLACE)
+
+### 🔗 URL:
+
+```bash
+PUT http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (⚠️ FULL DATA dena padega):
+
+```json
+{
+  "title": "Updated Title",
+  "type": "series",
+  "episodes": [
+    { "episodeNumber": 1 },
+    { "episodeNumber": 2 },
+    { "episodeNumber": 3 }
+  ]
+}
+```
+
+👉 ⚠️ Yeh pura replace karega
+
+---
+
+# ✅ 5. PARTIAL UPDATE (PATCH)
+
+```bash
+PATCH http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body:
+
+```json
+{
+  "title": "New Title Only"
+}
+```
+
+---
+
+# ✅ 6. ADD EPISODE 🔥
+
+### 🔗 URL:
+
+```bash
+PATCH http://localhost:3001/api/content/{id}/episodes
+```
+
+### 📦 Body:
+
+```json
+{
+  "episode": {
+    "episodeNumber": 3,
+    "title": "Episode 3",
+    "videoUrl": "https://streamtape.com/e/xyz",
+    "thumbnail": "https://image.jpg"
+  }
+}
+```
+
+👉 ✔ purane episodes safe
+👉 ✔ new episode add hoga
+
+---
+
+# ✅ 7. UPDATE EPISODE
+
+### 🔗 URL:
+
+```bash
+PUT http://localhost:3001/api/content/{id}/episodes/3
+```
+
+### 📦 Body:
+
+```json
+{
+  "episodeNumber": 3,
+  "title": "Episode 3 Updated",
+  "videoUrl": "new-url"
+}
+```
+
+---
+
+# ✅ 8. DELETE EPISODE ❌
+
+### 🔗 URL:
+
+```bash
+DELETE http://localhost:3001/api/content/{id}/episodes/3
+```
+
+👉 ❌ Body nahi chahiye
+👉 ✔ sirf episode 3 delete
+
+---
+
+# ✅ 9. DELETE CONTENT ❌
+
+```bash
+DELETE http://localhost:3001/api/content/{id}
+```
+
+---
+
+# 🧠 QUICK MEMORY TABLE
+
+| Action         | Method | URL                         |
+| -------------- | ------ | --------------------------- |
+| Create         | POST   | `/content`                  |
+| Get all        | GET    | `/content`                  |
+| Get one        | GET    | `/content/:id`              |
+| Full update    | PUT    | `/content/:id`              |
+| Partial update | PATCH  | `/content/:id`              |
+| Add episode    | PATCH  | `/content/:id/episodes`     |
+| Update episode | PUT    | `/content/:id/episodes/:ep` |
+| Delete episode | DELETE | `/content/:id/episodes/:ep` |
+| Delete content | DELETE | `/content/:id`              |
+
+---
+
+# ⚠️ MOST IMPORTANT RULE
+
+👉 **PUT = replace (danger)**
+👉 **PATCH + $push = safe add**
+👉 **DELETE + $pull = remove**
+
+---
+
+# 🎯 FINAL
+
+Ab tum:
+
+* episode add kar sakte ho ✔
+* delete kar sakte ho ✔
+* overwrite avoid kar sakte ho ✔
+
+---
+
+Agar next step me tum:
+
+* season-wise system
+* auto next episode
+* continue watching
+
+banana chahte ho, main pura production-level flow bana dunga 👍

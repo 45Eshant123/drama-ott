@@ -160,6 +160,52 @@ export const updateContentTrailer = async (req, res) => {
     }
 };
 
+export const addEpisode = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const episode = req.body.episode;
+
+        const record = await Content.findByIdAndUpdate(
+            id,
+            { $push: { episodes: episode } },
+            { new: true }
+        );
+
+        res.json({ message: "Episode added", item: record });
+    } catch (err) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
+export const deleteEpisode = async (req, res) => {
+    try {
+        const { id, episodeNumber } = req.params;
+
+        const record = await Content.findByIdAndUpdate(
+            id,
+            {
+                $pull: {
+                    episodes: { episodeNumber: Number(episodeNumber) }
+                }
+            },
+            { new: true }
+        );
+
+        res.json({ message: "Episode deleted", item: record });
+    } catch (err) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
+export const deleteContent = async (req, res) => {
+    try {
+        await Content.findByIdAndDelete(req.params.id);
+        res.json({ message: "Deleted" });
+    } catch (err) {
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
 export const createContent = async (req, res) => {
     try {
         const payload = buildContentPayload(req.body);

@@ -6,7 +6,10 @@ import {
 	getTop10ByType,
 	getTrendingContent,
 	searchContent,
-	updateContentTrailer
+	updateContentTrailer,
+	addEpisode,
+	deleteEpisode,
+	deleteContent
 } from "../controllers/contentController.js";
 import { createContent, updateContent } from "../controllers/contentController.js";
 
@@ -21,5 +24,7 @@ router.patch("/:id/trailer", updateContentTrailer);
 router.get("/:id", getContentById);
 router.post("/", createContent);
 router.put("/:id", updateContent);
-
+router.patch("/:id/episodes", addEpisode);
+router.delete("/:id/episodes/:episodeNumber", deleteEpisode);
+router.delete("/:id", deleteContent);
 export default router;
