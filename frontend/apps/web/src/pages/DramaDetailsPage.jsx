@@ -38,12 +38,13 @@ const DramaDetailsPage = () => {
 	const [drama, setDrama] = useState(null);
 	const [relatedDramas, setRelatedDramas] = useState([]);
 	const [episodes, setEpisodes] = useState([]);
+	const [selectedSeason, setSelectedSeason] = useState(1);
 	const [loading, setLoading] = useState(true);
 	const [watchlistRecord, setWatchlistRecord] = useState(null);
 	const [watchlistLoading, setWatchlistLoading] = useState(false);
 
 	const firstEpisodeNumber = episodes.length > 0 ? Number(episodes[0]?.episodeNumber) || 1 : 1;
-	const watchNowHref = `/watch/${id}?ep=${firstEpisodeNumber}`;
+	const watchNowHref = `/watch/${id}?season=${selectedSeason}&ep=${firstEpisodeNumber}`;
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -60,14 +61,19 @@ const DramaDetailsPage = () => {
 					description: item.description,
 					year: item.releaseYear,
 					country: item.language || 'Unknown',
-					numberOfSeasons: 1,
+						numberOfSeasons: item.seasons?.length || 1,
+						seasons: item.seasons || [],
 					trailerUrl: item.trailerUrl || '',
 					isTrending: true,
 					isPopular: true,
 				};
 
-				setEpisodes(item.episodes || []);
+				const seasons = item.seasons || [];
+				const currentSeason =
+					seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
+				setEpisodes(currentSeason?.episodes || []);
 				setDrama(mappedDrama);
+				
 
 				if (isAuthenticated && currentUser) {
 					try {
@@ -103,6 +109,12 @@ const DramaDetailsPage = () => {
 
 		fetchData();
 	}, [id, isAuthenticated, currentUser]);
+
+	useEffect(() => {
+		const seasons = drama?.seasons || [];
+		const currentSeason = seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
+		setEpisodes(currentSeason?.episodes || []);
+	}, [selectedSeason, drama]);
 
 	const toggleWatchlist = async () => {
 		if (!isAuthenticated) {
@@ -247,6 +259,23 @@ const DramaDetailsPage = () => {
 
 				<div className="mt-16">
 					<h2 className="text-2xl mb-4">Episodes</h2>
+					{(drama?.seasons?.length || 0) > 1 && (
+						<div className="flex gap-2 mb-4">
+							{drama.seasons.map((s) => (
+								<button
+									key={s.seasonNumber}
+									onClick={() => setSelectedSeason(s.seasonNumber)}
+									className={`px-3 py-1 rounded ${
+										selectedSeason === s.seasonNumber
+											? "bg-red-500"
+											: "bg-gray-700"
+									}`}
+								>
+									Season {s.seasonNumber}
+								</button>
+							))}
+						</div>
+					)}
 					{episodes.length === 0 ? (
 						<div className="p-6 border border-dashed text-center text-gray-400 rounded-xl">
 							No episodes available
@@ -260,7 +289,7 @@ const DramaDetailsPage = () => {
 										<div className="font-semibold">Episode {ep.episodeNumber || idx + 1}{ep.title ? ` - ${ep.title}` : ''}</div>
 										<div className="text-sm text-gray-300">{ep.duration || ''}</div>
 									</div>
-									<Link to={`/watch/${id}?ep=${ep.episodeNumber || idx + 1}`} className="text-sm bg-red-500 px-3 py-1 rounded">Watch</Link>
+									<Link to={`/watch/${id}?season=${selectedSeason}&ep=${ep.episodeNumber || idx + 1}`} className="text-sm bg-red-500 px-3 py-1 rounded">Watch</Link>
 								</li>
 							))}
 						</ul>

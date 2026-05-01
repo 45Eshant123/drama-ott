@@ -5,9 +5,21 @@ const VALID_TYPES = ["movie", "series", "anime"];
 const normalizeContent = (doc) => {
     if (!doc) return null;
     const item = typeof doc.toObject === "function" ? doc.toObject() : doc;
+    let seasons = [];
+    if (Array.isArray(item.seasons) && item.seasons.length > 0) {
+        seasons = item.seasons;
+    } else {
+        seasons = [
+            {
+                seasonNumber: 1,
+                episodes: item.episodes || []
+            }
+        ];
+    }
     return {
         ...item,
-        id: String(item._id || item.id)
+        id: String(item._id || item.id),
+        seasons
     };
 };
 
@@ -163,36 +175,205 @@ export const updateContentTrailer = async (req, res) => {
 export const addEpisode = async (req, res) => {
     try {
         const { id } = req.params;
-        const episode = req.body.episode;
+        const { seasonNumber, episode, episodes, episodeNumber, update } = req.body;
 
-        const record = await Content.findByIdAndUpdate(
-            id,
-            { $push: { episodes: episode } },
-            { new: true }
-        );
+        if (update) {
+            if (!seasonNumber || !episodeNumber || !update) {
+                return res.status(400).json({ message: "Invalid data" });
+            }
 
-        res.json({ message: "Episode added", item: record });
-    } catch (err) {
-        res.status(500).json({ message: "Failed" });
-    }
-};
+            const setObj = {};
 
-export const deleteEpisode = async (req, res) => {
-    try {
-        const { id, episodeNumber } = req.params;
+            if (update.title !== undefined) {
+                setObj["seasons.$[season].episodes.$[ep].title"] = update.title;
+            }
 
-        const record = await Content.findByIdAndUpdate(
-            id,
+            if (update.videoUrl !== undefined) {
+                setObj["seasons.$[season].episodes.$[ep].videoUrl"] = update.videoUrl;
+            }
+
+            if (update.thumbnail !== undefined) {
+                setObj["seasons.$[season].episodes.$[ep].thumbnail"] = update.thumbnail;
+            }
+
+            const record = await Content.findOneAndUpdate(
+                {
+                    _id: id,
+                    "seasons.seasonNumber": seasonNumber,
+                    "seasons.episodes.episodeNumber": episodeNumber
+                },
+                {
+                    $set: setObj
+                },
+                {
+                    arrayFilters: [
+                        { "season.seasonNumber": seasonNumber },
+                        { "ep.episodeNumber": episodeNumber }
+                    ],
+                    new: true
+                }
+            );
+
+            return res.json({ message: "Episode updated", item: record });
+        }
+
+        const episodesToAdd = episodes || (episode ? [episode] : []);
+
+        if (!seasonNumber || episodesToAdd.length === 0) {
+            return res.status(400).json({ message: "Invalid data" });
+        }
+
+        let record = await Content.findOneAndUpdate(
+            { _id: id, "seasons.seasonNumber": seasonNumber },
             {
-                $pull: {
-                    episodes: { episodeNumber: Number(episodeNumber) }
+                $push: {
+                    "seasons.$.episodes": { $each: episodesToAdd }
                 }
             },
             { new: true }
         );
 
+        if (!record) {
+            record = await Content.findByIdAndUpdate(id, {
+                $push: {
+                    seasons: {
+                        seasonNumber,
+                        episodes: episodesToAdd
+                    }
+                }
+            }, { new: true });
+        }
+
+        res.json({ message: "Episodes added", item: record });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed" });
+    }
+};
+
+export const updateEpisode = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { seasonNumber, episodeNumber, update } = req.body;
+
+        if (!seasonNumber || !episodeNumber || !update) {
+            return res.status(400).json({ message: "Invalid data" });
+        }
+
+        const setObj = {};
+
+        if (update.title !== undefined) {
+            setObj["seasons.$[season].episodes.$[ep].title"] = update.title;
+        }
+
+        if (update.videoUrl !== undefined) {
+            setObj["seasons.$[season].episodes.$[ep].videoUrl"] = update.videoUrl;
+        }
+
+        if (update.thumbnail !== undefined) {
+            setObj["seasons.$[season].episodes.$[ep].thumbnail"] = update.thumbnail;
+        }
+
+        const record = await Content.findOneAndUpdate(
+            {
+                _id: id,
+                "seasons.seasonNumber": seasonNumber,
+                "seasons.episodes.episodeNumber": episodeNumber
+            },
+            {
+                $set: setObj
+            },
+            {
+                arrayFilters: [
+                    { "season.seasonNumber": seasonNumber },
+                    { "ep.episodeNumber": episodeNumber }
+                ],
+                new: true
+            }
+        );
+
+        res.json({ message: "Episode updated", item: record });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to update episode" });
+    }
+};
+
+export const migrateAllContent = async (req, res) => {
+    try {
+        const contents = await Content.find();
+
+        let updatedCount = 0;
+
+        for (let content of contents) {
+            if (!content.episodes || content.episodes.length === 0) continue;
+
+            if (!content.seasons) content.seasons = [];
+
+            let season1 = content.seasons.find(
+                (s) => s.seasonNumber === 1
+            );
+
+            if (!season1) {
+                season1 = {
+                    seasonNumber: 1,
+                    episodes: []
+                };
+                content.seasons.push(season1);
+            }
+
+            const existingEpisodeNumbers = new Set(
+                season1.episodes.map((ep) => ep.episodeNumber)
+            );
+
+            const newEpisodes = content.episodes.filter(
+                (ep) => !existingEpisodeNumbers.has(ep.episodeNumber)
+            );
+
+            season1.episodes.push(...newEpisodes);
+
+            content.episodes = [];
+
+            await content.save();
+            updatedCount++;
+        }
+
+        res.json({
+            message: "Migration done safely",
+            updated: updatedCount
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Failed to migrate content" });
+    }
+};
+
+export const deleteEpisode = async (req, res) => {
+    try {
+        const { id, seasonNumber, episodeNumber } = req.params;
+
+        const record = await Content.findOneAndUpdate(
+            {
+                _id: id,
+                "seasons.seasonNumber": Number(seasonNumber)
+            },
+            {
+                $pull: {
+                    "seasons.$.episodes": {
+                        episodeNumber: Number(episodeNumber)
+                    }
+                }
+            },
+            { new: true }
+        );
+
+        if (!record) {
+            return res.status(404).json({ message: "Episode not found" });
+        }
+
         res.json({ message: "Episode deleted", item: record });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: "Failed" });
     }
 };

@@ -27,6 +27,7 @@ const VideoPlayerPage = () => {
 	const query = new URLSearchParams(location.search);
 	const navigate = useNavigate();
 	const { isAuthenticated, currentUser } = useAuth() || {};
+	const seasonNumber = Number(query.get('season')) || 1;
 
 	const [content, setContent] = useState(null);
 	const [loading, setLoading] = useState(true);
@@ -34,8 +35,8 @@ const VideoPlayerPage = () => {
 	const [episodes, setEpisodes] = useState([]);
 	const [historyRecord, setHistoryRecord] = useState(null);
 
-	const selectEpisode = (episodeNumber) => {
-		navigate(`/watch/${id}?ep=${episodeNumber}`);
+	const selectEpisode = (episodeNumber, seasonNum = seasonNumber) => {
+		navigate(`/watch/${id}?season=${seasonNum}&ep=${episodeNumber}`);
 	};
 
 	useEffect(() => {
@@ -45,7 +46,10 @@ const VideoPlayerPage = () => {
 				const itm = res.item;
 				setContent(itm);
 
-				const eps = Array.isArray(itm.episodes) ? itm.episodes : [];
+				const seasons = itm.seasons || [];
+				const currentSeason =
+					seasons.find((s) => s.seasonNumber === seasonNumber) || seasons[0];
+				const eps = currentSeason?.episodes || [];
 				setEpisodes(eps);
 
 				const epNum = Number(query.get('ep')) || null;
@@ -148,7 +152,7 @@ const VideoPlayerPage = () => {
 								onClick={() => {
 									const currentIndex = episodes.findIndex((ep) => Number(ep.episodeNumber) === Number(episode.episodeNumber));
 									if (currentIndex > 0) {
-										selectEpisode(Number(episodes[currentIndex - 1].episodeNumber) || currentIndex);
+										selectEpisode(Number(episodes[currentIndex - 1].episodeNumber) || currentIndex, seasonNumber);
 									}
 								}}
 								disabled={episodes.findIndex((ep) => Number(ep.episodeNumber) === Number(episode.episodeNumber)) <= 0}
@@ -167,7 +171,7 @@ const VideoPlayerPage = () => {
 								onClick={() => {
 									const currentIndex = episodes.findIndex((ep) => Number(ep.episodeNumber) === Number(episode.episodeNumber));
 									if (currentIndex >= 0 && currentIndex < episodes.length - 1) {
-										selectEpisode(Number(episodes[currentIndex + 1].episodeNumber) || currentIndex + 2);
+										selectEpisode(Number(episodes[currentIndex + 1].episodeNumber) || currentIndex + 2, seasonNumber);
 									}
 								}}
 								disabled={episodes.findIndex((ep) => Number(ep.episodeNumber) === Number(episode.episodeNumber)) >= episodes.length - 1}

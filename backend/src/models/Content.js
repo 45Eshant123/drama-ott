@@ -1,5 +1,17 @@
 import mongoose from "mongoose";
 
+const seasonSchema = new mongoose.Schema({
+    seasonNumber: Number,
+    episodes: [
+        {
+            episodeNumber: Number,
+            title: String,
+            videoUrl: String,
+            thumbnail: String
+        }
+    ]
+});
+
 const contentSchema = new mongoose.Schema(
     {
         tmdbId: {
@@ -41,6 +53,8 @@ const contentSchema = new mongoose.Schema(
             }
         ],
 
+        seasons: [seasonSchema],
+
         releaseYear: Number,
 
         rating: {
@@ -55,5 +69,6 @@ const contentSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
 
 export default mongoose.model("Content", contentSchema);

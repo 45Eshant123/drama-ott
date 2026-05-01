@@ -8,6 +8,8 @@ import {
 	searchContent,
 	updateContentTrailer,
 	addEpisode,
+	updateEpisode,
+	migrateAllContent,
 	deleteEpisode,
 	deleteContent
 } from "../controllers/contentController.js";
@@ -25,6 +27,8 @@ router.get("/:id", getContentById);
 router.post("/", createContent);
 router.put("/:id", updateContent);
 router.patch("/:id/episodes", addEpisode);
-router.delete("/:id/episodes/:episodeNumber", deleteEpisode);
+router.patch("/:id/episode", updateEpisode);
+router.post("/migrate-all", migrateAllContent);
+router.delete("/:id/seasons/:seasonNumber/episodes/:episodeNumber", deleteEpisode);
 router.delete("/:id", deleteContent);
 export default router;
