@@ -31,6 +31,12 @@ const getYouTubeEmbedUrl = (url) => {
 	}
 };
 
+const sortEpisodes = (episodes = []) => {
+	return [...episodes].sort(
+		(a, b) => Number(a?.episodeNumber || 0) - Number(b?.episodeNumber || 0)
+	);
+};
+
 const DramaDetailsPage = () => {
 	const { id } = useParams();
 	const { isAuthenticated, currentUser } = useAuth() || {};
@@ -71,7 +77,7 @@ const DramaDetailsPage = () => {
 				const seasons = item.seasons || [];
 				const currentSeason =
 					seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
-				setEpisodes(currentSeason?.episodes || []);
+				setEpisodes(sortEpisodes(currentSeason?.episodes || []));
 				setDrama(mappedDrama);
 				
 
@@ -113,7 +119,7 @@ const DramaDetailsPage = () => {
 	useEffect(() => {
 		const seasons = drama?.seasons || [];
 		const currentSeason = seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
-		setEpisodes(currentSeason?.episodes || []);
+		setEpisodes(sortEpisodes(currentSeason?.episodes || []));
 	}, [selectedSeason, drama]);
 
 	const toggleWatchlist = async () => {

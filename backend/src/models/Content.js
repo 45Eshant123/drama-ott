@@ -7,7 +7,13 @@ const seasonSchema = new mongoose.Schema({
             episodeNumber: Number,
             title: String,
             videoUrl: String,
-            thumbnail: String
+            thumbnail: String,
+            servers: [
+                {
+                    name: String,
+                    url: String
+                }
+            ]
         }
     ]
 });
@@ -49,7 +55,13 @@ const contentSchema = new mongoose.Schema(
                 episodeNumber: Number,
                 title: String,
                 videoUrl: String,
-                thumbnail: String
+                thumbnail: String,
+                servers: [
+                    {
+                        name: String,
+                        url: String
+                    }
+                ]
             }
         ],
 
@@ -69,6 +81,11 @@ const contentSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+contentSchema.index({
+    "seasons.seasonNumber": 1,
+    "seasons.episodes.episodeNumber": 1
+});
 
 
 export default mongoose.model("Content", contentSchema);

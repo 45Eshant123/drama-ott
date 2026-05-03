@@ -2,20 +2,46 @@ import Content from "../models/Content.js";
 
 const VALID_TYPES = ["movie", "series", "anime"];
 
+const normalizeEpisodes = (episodes = []) => {
+    return [...episodes]
+        .sort((a, b) => Number(a?.episodeNumber || 0) - Number(b?.episodeNumber || 0))
+        .map((ep) => {
+            let servers = ep.servers;
+            if (!servers || servers.length === 0) {
+                if (ep.videoUrl) {
+                    servers = [
+                        { name: "Default", url: ep.videoUrl }
+                    ];
+                } else {
+                    servers = [];
+                }
+            }
+            return {
+                ...ep,
+                servers
+            };
+        });
+};
+
 const normalizeContent = (doc) => {
     if (!doc) return null;
     const item = typeof doc.toObject === "function" ? doc.toObject() : doc;
     let seasons = [];
+
     if (Array.isArray(item.seasons) && item.seasons.length > 0) {
-        seasons = item.seasons;
+        seasons = item.seasons.map((s) => ({
+            ...s,
+            episodes: normalizeEpisodes(s.episodes)
+        }));
     } else {
         seasons = [
             {
                 seasonNumber: 1,
-                episodes: item.episodes || []
+                episodes: normalizeEpisodes(item.episodes || [])
             }
         ];
     }
+
     return {
         ...item,
         id: String(item._id || item.id),
@@ -196,6 +222,10 @@ export const addEpisode = async (req, res) => {
                 setObj["seasons.$[season].episodes.$[ep].thumbnail"] = update.thumbnail;
             }
 
+            if (update.servers !== undefined) {
+                setObj["seasons.$[season].episodes.$[ep].servers"] = update.servers;
+            }
+
             const record = await Content.findOneAndUpdate(
                 {
                     _id: id,
@@ -223,25 +253,83 @@ export const addEpisode = async (req, res) => {
             return res.status(400).json({ message: "Invalid data" });
         }
 
-        let record = await Content.findOneAndUpdate(
+        const incomingNumbers = new Set();
+        for (const ep of episodesToAdd) {
+            const episodeNum = Number(ep?.episodeNumber);
+            if (!Number.isFinite(episodeNum)) {
+                return res.status(400).json({ message: "Invalid episode number" });
+            }
+            if (incomingNumbers.has(episodeNum)) {
+                return res.status(409).json({ message: `Duplicate episodeNumber in request: ${episodeNum}` });
+            }
+            incomingNumbers.add(episodeNum);
+        }
+
+        const existingSeason = await Content.findOne(
             { _id: id, "seasons.seasonNumber": seasonNumber },
+            { seasons: 1 }
+        ).lean();
+
+        const existingNumbers = new Set(
+            existingSeason?.seasons
+                ?.find((s) => Number(s.seasonNumber) === Number(seasonNumber))
+                ?.episodes?.map((ep) => Number(ep.episodeNumber)) || []
+        );
+
+        for (const ep of episodesToAdd) {
+            const episodeNum = Number(ep?.episodeNumber);
+            if (existingNumbers.has(episodeNum)) {
+                return res.status(409).json({ message: `Episode ${episodeNum} already exists` });
+            }
+            existingNumbers.add(episodeNum);
+        }
+
+        const episodeNumbers = episodesToAdd.map((ep) => Number(ep.episodeNumber));
+        const sortedEpisodesToAdd = [...episodesToAdd].sort(
+            (a, b) => Number(a?.episodeNumber || 0) - Number(b?.episodeNumber || 0)
+        );
+
+        let record = await Content.findOneAndUpdate(
+            {
+                _id: id,
+                "seasons.seasonNumber": seasonNumber,
+                "seasons.episodes.episodeNumber": { $nin: episodeNumbers }
+            },
             {
                 $push: {
-                    "seasons.$.episodes": { $each: episodesToAdd }
+                    "seasons.$.episodes": {
+                        $each: sortedEpisodesToAdd,
+                        $sort: { episodeNumber: 1 }
+                    }
                 }
             },
             { new: true }
         );
 
         if (!record) {
-            record = await Content.findByIdAndUpdate(id, {
-                $push: {
-                    seasons: {
-                        seasonNumber,
-                        episodes: episodesToAdd
+            record = await Content.findOneAndUpdate(
+                {
+                    _id: id,
+                    seasons: { $not: { $elemMatch: { seasonNumber } } }
+                },
+                {
+                    $push: {
+                        seasons: {
+                            seasonNumber,
+                            episodes: sortedEpisodesToAdd
+                        }
                     }
-                }
-            }, { new: true });
+                },
+                { new: true }
+            );
+        }
+
+        if (!record) {
+            const contentExists = await Content.exists({ _id: id });
+            if (!contentExists) {
+                return res.status(404).json({ message: "Content not found" });
+            }
+            return res.status(409).json({ message: "Episode already exists" });
         }
 
         res.json({ message: "Episodes added", item: record });
@@ -268,6 +356,10 @@ export const updateEpisode = async (req, res) => {
 
         if (update.videoUrl !== undefined) {
             setObj["seasons.$[season].episodes.$[ep].videoUrl"] = update.videoUrl;
+        }
+
+        if (update.servers !== undefined) {
+            setObj["seasons.$[season].episodes.$[ep].servers"] = update.servers;
         }
 
         if (update.thumbnail !== undefined) {

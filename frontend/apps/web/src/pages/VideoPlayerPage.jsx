@@ -34,6 +34,8 @@ const VideoPlayerPage = () => {
 	const [episode, setEpisode] = useState(null);
 	const [episodes, setEpisodes] = useState([]);
 	const [historyRecord, setHistoryRecord] = useState(null);
+	const [servers, setServers] = useState([]);
+	const [selectedServer, setSelectedServer] = useState(null);
 
 	const selectEpisode = (episodeNumber, seasonNum = seasonNumber) => {
 		navigate(`/watch/${id}?season=${seasonNum}&ep=${episodeNumber}`);
@@ -49,7 +51,9 @@ const VideoPlayerPage = () => {
 				const seasons = itm.seasons || [];
 				const currentSeason =
 					seasons.find((s) => s.seasonNumber === seasonNumber) || seasons[0];
-				const eps = currentSeason?.episodes || [];
+				const eps = [...(currentSeason?.episodes || [])].sort(
+					(a, b) => Number(a?.episodeNumber || 0) - Number(b?.episodeNumber || 0)
+				);
 				setEpisodes(eps);
 
 				const epNum = Number(query.get('ep')) || null;
@@ -58,12 +62,19 @@ const VideoPlayerPage = () => {
 				if (!chosen && eps.length) chosen = eps[0];
 
 				if (chosen) {
+					const epServers = chosen.servers?.length
+						? chosen.servers
+						: [{ name: 'Default', url: chosen.videoUrl }];
+
+					setServers(epServers);
+					setSelectedServer(epServers[0] || null);
+
 					const normalized = {
 						episodeNumber: Number(chosen.episodeNumber || chosen.ep || 1),
 						title: chosen.title || '',
 						duration: chosen.duration || '',
 						description: chosen.description || '',
-						embeddedPlayerUrl: buildEmbedUrl(chosen.videoUrl || chosen.url || chosen.sourceUrl),
+						embeddedPlayerUrl: buildEmbedUrl(epServers[0]?.url),
 					};
 					setEpisode(normalized);
 
@@ -133,10 +144,35 @@ const VideoPlayerPage = () => {
 
 				<div className="grid gap-6 lg:grid-cols-[1fr_320px]">
 					<div>
+						{servers.length > 1 && (
+							<div className="flex gap-2 mb-3">
+								{servers.map((srv, idx) => (
+									<button
+										key={idx}
+										onClick={() => {
+											setSelectedServer(srv);
+											setEpisode((prev) => ({
+												...prev,
+												embeddedPlayerUrl: buildEmbedUrl(srv.url),
+											}));
+										}}
+										className={`px-3 py-1 rounded ${
+											selectedServer?.url === srv.url
+												? 'bg-red-500'
+												: 'bg-zinc-700'
+										}`}
+									>
+										{srv.name}
+									</button>
+								))}
+							</div>
+						)}
+
 						<div className="aspect-video w-full bg-zinc-900 rounded-xl overflow-hidden shadow-2xl mb-4">
-							{episode.embeddedPlayerUrl ? (
+								{selectedServer ? (
+								
 								<iframe
-									src={episode.embeddedPlayerUrl}
+										src={selectedServer ? buildEmbedUrl(selectedServer.url) : null}
 									className="w-full h-full border-0"
 									allowFullScreen
 									allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

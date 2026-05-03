@@ -105,20 +105,30 @@ Example body:
       {
          "episodeNumber": 1,
          "title": "Episode 1",
-         "url": "https://streamtape.com/e/abcd1234",
+         "servers": [
+            {
+               "name": "Streamtape",
+               "url": "https://streamtape.com/e/abcd1234"
+            }
+         ],
          "duration": "45"
       },
       {
          "episodeNumber": 2,
          "title": "Episode 2",
-         "url": "https://streamtape.com/e/wxyz5678",
+         "servers": [
+            {
+               "name": "Streamtape",
+               "url": "https://streamtape.com/e/wxyz5678"
+            }
+         ],
          "duration": "46"
       }
    ]
 }
 ```
 
-The player page reads the first available episode from the `episodes` array and uses the `url` field for playback.
+The player page reads the first available episode from the `episodes` array and uses the first server entry for playback.
 
 ### 3) Add Episodes Through TMDB/Streamtape Endpoint
 
@@ -136,7 +146,12 @@ Example using `episodes`:
       {
          "episodeNumber": 1,
          "title": "Episode 1",
-         "url": "https://streamtape.com/e/abcd1234",
+         "servers": [
+            {
+               "name": "Streamtape",
+               "url": "https://streamtape.com/e/abcd1234"
+            }
+         ],
          "duration": "45"
       }
    ]
