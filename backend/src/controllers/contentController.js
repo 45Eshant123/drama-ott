@@ -119,7 +119,7 @@ export const getTop10ByType = async (req, res) => {
 
 export const getContentList = async (req, res) => {
     try {
-        const { type, genre, language, year, rating, page = '1', limit = '100' } = req.query;
+        const { type, genre, language, year, rating, page = '1', limit = '1000' } = req.query;
         const filter = {};
         if (type && VALID_TYPES.includes(String(type).toLowerCase())) filter.type = String(type).toLowerCase();
         if (genre) filter.genre = { $in: [String(genre)] };
@@ -134,7 +134,7 @@ export const getContentList = async (req, res) => {
         }
 
         const p = parsePositiveInt(page, 1);
-        const l = parsePositiveInt(limit, 100);
+        const l = parsePositiveInt(limit, 1000);
         const skip = (p - 1) * l;
 
         const [records, total] = await Promise.all([
@@ -151,24 +151,24 @@ export const getContentList = async (req, res) => {
 export const searchContent = async (req, res) => {
     try {
         const q = String(req.query.q || '').trim();
-        if (!q) return res.json({ items: [] });
-        const regex = new RegExp(q, 'i');
-        const filter = { $or: [{ title: regex }, { description: regex }, { genre: regex }] };
-        if (req.query.genre) filter.genre = { $in: [String(req.query.genre)] };
-        if (req.query.language) filter.language = String(req.query.language);
-        if (req.query.year) {
-            const y = Number.parseInt(req.query.year, 10);
-            if (Number.isFinite(y)) filter.releaseYear = y;
-        }
-        if (req.query.rating) {
-            const r = Number.parseFloat(req.query.rating);
-            if (Number.isFinite(r)) filter.rating = { $gte: r };
+
+        if (!q) {
+            return res.json({ items: [] });
         }
 
-        const records = await Content.find(filter).sort({ views: -1, rating: -1 }).limit(50);
-        return res.json({ items: records.map(normalizeContent) });
+        const regex = new RegExp(q, 'i');
+
+        const records = await Content.find({
+            title: regex
+        }).sort({ createdAt: -1 });
+
+        return res.json({
+            items: records.map(normalizeContent)
+        });
     } catch (err) {
-        return res.status(500).json({ message: 'Search failed' });
+        return res.status(500).json({
+            message: 'Search failed'
+        });
     }
 };
 

@@ -35,13 +35,14 @@ const SearchPage = () => {
 	const fetchResults = async () => {
 		setLoading(true);
 		try {
-			let url = `/content?type=series`;
+			let url = query
+				? `/content/search?q=${encodeURIComponent(query)}`
+				: `/content?type=series&limit=1000`;
 
-			if (query) url += `&q=${query}`;
 			if (selectedCountries.length > 0)
 				url += `&language=${selectedCountries[0]}`;
 			if (selectedGenres.length > 0)
-				url += `&genre=${selectedGenres[0].toLowerCase()}`;
+				url += `&genre=${encodeURIComponent(selectedGenres[0])}`;
 
 			const res = await apiClient.request(url);
 
