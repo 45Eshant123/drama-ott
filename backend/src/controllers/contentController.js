@@ -119,7 +119,7 @@ export const getTop10ByType = async (req, res) => {
 
 export const getContentList = async (req, res) => {
     try {
-        const { type, genre, language, year, rating, page = '1', limit = '50' } = req.query;
+        const { type, genre, language, year, rating, page = '1', limit = '100' } = req.query;
         const filter = {};
         if (type && VALID_TYPES.includes(String(type).toLowerCase())) filter.type = String(type).toLowerCase();
         if (genre) filter.genre = { $in: [String(genre)] };
@@ -134,7 +134,7 @@ export const getContentList = async (req, res) => {
         }
 
         const p = parsePositiveInt(page, 1);
-        const l = parsePositiveInt(limit, 50);
+        const l = parsePositiveInt(limit, 100);
         const skip = (p - 1) * l;
 
         const [records, total] = await Promise.all([
