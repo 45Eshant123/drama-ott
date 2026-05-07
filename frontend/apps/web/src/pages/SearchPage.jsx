@@ -154,10 +154,10 @@ const SearchPage = () => {
 		<div className="min-h-screen bg-gradient-to-b from-black via-zinc-950 to-black text-white">
 			<div className="mx-auto max-w-screen-2xl px-4 py-8">
 
-				<div className="flex flex-col md:flex-row gap-8">
+				<div className="flex flex-col md:flex-row gap-6 xl:gap-10">
 
 				{/* SIDEBAR */}
-				<aside className="hidden md:block w-64 space-y-6">
+					<aside className="hidden md:block w-56 xl:w-60 space-y-6 shrink-0">
 
 					<div className="relative">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" />
@@ -174,7 +174,7 @@ const SearchPage = () => {
 				</aside>
 
 					{/* MAIN */}
-					<main className="flex-1">
+					<main className="flex-1 min-w-0">
 
 					{/* MOBILE */}
 					<div className="md:hidden flex gap-2 mb-6">
@@ -223,7 +223,7 @@ const SearchPage = () => {
 							))}
 						</div>
 					) : dramas.length > 0 ? (
-						<div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+						<div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6">
 			
 							{dramas.map((drama) => (
 								<div key={drama.id} className="min-w-0">

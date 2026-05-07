@@ -306,7 +306,7 @@ const DramaDetailsPage = () => {
 					<div className="mt-16">
 						<HorizontalScroll title="More Like This">
 							{relatedDramas.map((related) => (
-								<DramaCard key={related.id} drama={related} />
+								<DramaCard key={related.id} drama={related} layout="home" />
 							))}
 						</HorizontalScroll>
 					</div>

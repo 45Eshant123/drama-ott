@@ -57,7 +57,7 @@ const HorizontalScroll = ({ title, children, viewAllLink }) => {
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-8 pb-4 pt-2"
+                    className="flex items-start gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-8 pb-4 pt-2"
                 >
                     {children}
                 </div>

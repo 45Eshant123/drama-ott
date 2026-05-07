@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Play } from 'lucide-react';
 
-const DramaCard = ({ drama }) => {
+const DramaCard = ({ drama, layout = 'grid' }) => {
     if (!drama) return null;
 
     const firstEpisodeNumber = Array.isArray(drama.episodes) && drama.episodes.length > 0
@@ -12,8 +12,12 @@ const DramaCard = ({ drama }) => {
         ? `/watch/${drama.id}?ep=${firstEpisodeNumber}`
         : `/drama/${drama.id}`;
 
+    const containerClassName = layout === 'home'
+        ? 'group relative flex-none w-[150px] sm:w-[180px] md:w-[220px] snap-start flex flex-col'
+        : 'group relative w-full max-w-[240px] flex flex-col';
+
     return (
-        <div className="group relative flex-none w-[150px] sm:w-[180px] md:w-[220px] snap-start">
+        <div className={containerClassName}>
             <Link to={`/drama/${drama.id}`} className="block">
                 <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-card shadow-lg transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-xl group-hover:shadow-primary/10">
                     {drama.posterUrl ? (
@@ -58,7 +62,7 @@ const DramaCard = ({ drama }) => {
                 </div>
             </Link>
 
-            <div className="mt-3 space-y-1.5">
+            <div className="mt-3 space-y-1.5 flex flex-col flex-1 min-h-0">
                 <h3 className="font-semibold text-base leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                     <Link to={`/drama/${drama.id}`}>{drama.title}</Link>
                 </h3>
@@ -82,12 +86,14 @@ const DramaCard = ({ drama }) => {
                     </div>
                 )}
 
-                <Link
-                    to={watchHref}
-                    className="inline-flex items-center justify-center rounded-md bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-600"
-                >
-                    Watch
-                </Link>
+                <div className="mt-auto">
+                    <Link
+                        to={watchHref}
+                        className="inline-flex items-center justify-center rounded-md bg-red-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-600"
+                    >
+                        Watch
+                    </Link>
+                </div>
             </div>
         </div>
     );

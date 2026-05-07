@@ -78,7 +78,7 @@ const HomePage = () => {
 		return (
 			<HorizontalScroll title={title} viewAllLink={viewAllLink}>
 				{items.map(drama => (
-					<DramaCard key={drama.id} drama={drama} />
+					<DramaCard key={drama.id} drama={drama} layout="home" />
 				))}
 			</HorizontalScroll>
 		);

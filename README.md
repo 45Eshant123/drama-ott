@@ -1,24 +1,85 @@
-# DramaStream Backend
+# DramaStream
 
-Node.js + Express + MongoDB backend for the DramaStream application.
+Full-stack DramaStream project with a Node.js + Express + MongoDB backend and a Vite + React frontend.
 
 ## Project Structure
 
 ```text
-backend/
-├── package-lock.json
+frontend/
 ├── package.json
+└── apps/
+   └── web/
+      ├── index.html
+      ├── package.json
+      ├── postcss.config.js
+      ├── tailwind.config.js
+      ├── vite.config.js
+      └── src/
+         ├── App.jsx
+         ├── index.css
+         ├── main.jsx
+         ├── components/
+         │   ├── DramaCard.jsx
+         │   ├── Header.jsx
+         │   ├── HorizontalScroll.jsx
+         │   ├── ProtectedRoute.jsx
+         │   ├── ScrollToTop.jsx
+         │   └── ui/
+         ├── contexts/
+         │   └── AuthContext.jsx
+         ├── hooks/
+         │   ├── use-mobile.jsx
+         │   └── use-toast.js
+         ├── lib/
+         │   ├── apiClient.js
+         │   └── utils.js
+         └── pages/
+            ├── DramaDetailsPage.jsx
+            ├── HomePage.jsx
+            ├── LoginPage.jsx
+            ├── SearchPage.jsx
+            ├── SignupPage.jsx
+            ├── UserProfilePage.jsx
+            └── VideoPlayerPage.jsx
+
+backend/
+├── package.json
+├── package-lock.json
 ├── README.md
+├── scripts/
+│   └── seedTmdb.js
 └── src/
     ├── config/
+   │   └── db.js
     ├── constants/
+   │   └── common.js
     ├── controllers/
+   │   ├── authController.js
+   │   ├── contentController.js
+   │   ├── libraryController.js
+   │   └── tmdbController.js
     ├── jobs/
+   │   └── tmbdImportJob.js
     ├── middleware/
+   │   ├── auth.js
+   │   ├── error.js
+   │   └── global-rate-limit.js
     ├── models/
+   │   ├── Content.js
+   │   ├── User.js
+   │   ├── WatchHistory.js
+   │   └── Watchlist.js
     ├── routes/
+   │   ├── auth.js
+   │   ├── content.js
+   │   ├── health-check.js
+   │   ├── index.js
+   │   ├── library.js
+   │   └── tmdbRoutes.js
     ├── services/
+   │   └── tmdbService.js
     └── utils/
+      └── logger.js
 ```
 
 ## Setup
