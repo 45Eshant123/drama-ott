@@ -74,7 +74,7 @@ const DramaDetailsPage = () => {
 					isPopular: true,
 				};
 
-				const seasons = item.seasons || [];
+				const seasons = (item.seasons || []).slice().sort((a, b) => Number(a?.seasonNumber || 0) - Number(b?.seasonNumber || 0));
 				const currentSeason =
 					seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
 				setEpisodes(sortEpisodes(currentSeason?.episodes || []));
@@ -117,7 +117,7 @@ const DramaDetailsPage = () => {
 	}, [id, isAuthenticated, currentUser]);
 
 	useEffect(() => {
-		const seasons = drama?.seasons || [];
+		const seasons = (drama?.seasons || []).slice().sort((a, b) => Number(a?.seasonNumber || 0) - Number(b?.seasonNumber || 0));
 		const currentSeason = seasons.find((s) => s.seasonNumber === selectedSeason) || seasons[0];
 		setEpisodes(sortEpisodes(currentSeason?.episodes || []));
 	}, [selectedSeason, drama]);

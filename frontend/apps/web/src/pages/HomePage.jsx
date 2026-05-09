@@ -153,8 +153,10 @@ const HomePage = () => {
 							</p>
 
 							<div className="flex flex-wrap gap-4 pt-4">
-								<Button size="lg" className="gap-2 text-base px-8 h-14 rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
-									<Play className="w-5 h-5 fill-current" /> Play
+								<Button asChild size="lg" className="gap-2 text-base px-8 h-14 rounded-full shadow-lg shadow-primary/20 hover:scale-105 transition-transform">
+									<Link to={`/watch/${hero.id}`}>
+										<Play className="w-5 h-5 fill-current" /> Play
+									</Link>
 								</Button>
 								<Button size="lg" variant="secondary" asChild className="gap-2 text-base px-8 h-14 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md border-none text-white">
 									<Link to={`/drama/${hero.id}`}>

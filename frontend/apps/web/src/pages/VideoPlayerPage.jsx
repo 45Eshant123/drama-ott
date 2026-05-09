@@ -48,7 +48,7 @@ const VideoPlayerPage = () => {
 				const itm = res.item;
 				setContent(itm);
 
-				const seasons = itm.seasons || [];
+				const seasons = (itm.seasons || []).slice().sort((a, b) => Number(a?.seasonNumber || 0) - Number(b?.seasonNumber || 0));
 				const currentSeason =
 					seasons.find((s) => s.seasonNumber === seasonNumber) || seasons[0];
 				const eps = [...(currentSeason?.episodes || [])].sort(
