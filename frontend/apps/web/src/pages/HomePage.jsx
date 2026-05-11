@@ -7,6 +7,8 @@ import HorizontalScroll from '@/components/HorizontalScroll.jsx';
 import DramaCard from '@/components/DramaCard.jsx';
 import { Skeleton } from '@/components/ui/skeleton';
 
+const getPrimaryCountry = (item = {}) => item.country || item.countries?.[0] || "Unknown";
+
 const HomePage = () => {
 	const [sections, setSections] = useState({
 		hero: null,
@@ -39,7 +41,7 @@ const HomePage = () => {
 					rating: item.rating,
 					description: item.description,
 					year: item.releaseYear,
-					country: item.language || "Unknown"
+					country: getPrimaryCountry(item)
 				}));
 
 				setSections({
@@ -49,7 +51,7 @@ const HomePage = () => {
 					popular: items.sort((a, b) => b.rating - a.rating).slice(0, 10),
 					newThisWeek: items.slice(10, 20),
 
-					korean: items.filter(i => i.country === "Korea"),
+					korean: items.filter(i => i.country === "South Korea"),
 					turkish: items.filter(i => i.country === "Turkey"),
 					indian: items.filter(i => i.country === "India"),
 					japanese: items.filter(i => i.country === "Japan"),
@@ -177,7 +179,7 @@ const HomePage = () => {
 
 				{/* Regional Sections */}
 				<div className="py-8 bg-secondary/30">
-					{renderSection("Korean Masterpieces", sections.korean, "/search?q=&country=Korea")}
+					{renderSection("Korean Masterpieces", sections.korean, "/search?q=&country=South%20Korea")}
 					{renderSection("Turkish Epics", sections.turkish, "/search?q=&country=Turkey")}
 					{renderSection("Indian Blockbusters", sections.indian, "/search?q=&country=India")}
 					{renderSection("Japanese Hits", sections.japanese, "/search?q=&country=Japan")}

@@ -1,5 +1,15 @@
 import mongoose from "mongoose";
 
+const VALID_COUNTRIES = [
+    "South Korea",
+    "Japan",
+    "China",
+    "Thailand",
+    "India",
+    "USA",
+    "Taiwan"
+];
+
 const seasonSchema = new mongoose.Schema({
     seasonNumber: Number,
     episodes: [
@@ -48,6 +58,17 @@ const contentSchema = new mongoose.Schema(
         genre: {
             type: [String],
             default: []
+        },
+
+        countries: {
+            type: [
+                {
+                    type: String,
+                    enum: VALID_COUNTRIES
+                }
+            ],
+            default: [],
+            index: true
         },
 
         episodes: [

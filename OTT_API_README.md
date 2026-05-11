@@ -30,11 +30,11 @@ POST /api/content
   "thumbnail": "https://www.image2url.com/r2/default/images/1777754053820-78c1f3a0-b831-4e69-8659-5192884e98d2.jpg",
   "trailerUrl": "https://youtu.be/YQeUmSD1c3g?si=MmQX7xNJvYljBAAr",
   "genre": ["Drama Comedy", "Fantasy", "Serial Killer"],
+  "countries": ["USA"],
   "releaseYear": 2006,
   "rating": 8.6,
-  "episodes":[]
+  "episodes": []
 }
-```
 
 **Response**
 ```json

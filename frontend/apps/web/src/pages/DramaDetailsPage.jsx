@@ -9,6 +9,8 @@ import DramaCard from '@/components/DramaCard.jsx';
 import HorizontalScroll from '@/components/HorizontalScroll.jsx';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 
+const getPrimaryCountry = (item = {}) => item.country || item.countries?.[0] || 'Unknown';
+
 const getYouTubeEmbedUrl = (url) => {
 	if (!url) return '';
 
@@ -66,7 +68,7 @@ const DramaDetailsPage = () => {
 					rating: item.rating,
 					description: item.description,
 					year: item.releaseYear,
-					country: item.language || 'Unknown',
+					country: getPrimaryCountry(item),
 						numberOfSeasons: item.seasons?.length || 1,
 						seasons: item.seasons || [],
 					trailerUrl: item.trailerUrl || '',

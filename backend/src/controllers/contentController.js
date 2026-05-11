@@ -1,6 +1,15 @@
 import Content from "../models/Content.js";
 
 const VALID_TYPES = ["movie", "series", "anime"];
+const VALID_COUNTRIES = [
+    "South Korea",
+    "Japan",
+    "China",
+    "Thailand",
+    "India",
+    "USA",
+    "Taiwan"
+];
 
 const normalizeEpisodes = (episodes = []) => {
     return [...episodes]
@@ -71,6 +80,12 @@ const buildContentPayload = (body = {}) => {
     if (has('thumbnail') || has('posterUrl')) payload.thumbnail = String(src.thumbnail || src.posterUrl || "").trim();
     if (has('trailerUrl')) payload.trailerUrl = String(src.trailerUrl || "").trim();
     if (has('genre')) payload.genre = normalizeGenre(src.genre);
+    if (has('countries')) {
+        const countries = Array.isArray(src.countries) ? src.countries : [];
+        payload.countries = countries
+            .map((country) => String(country).trim())
+            .filter((country) => VALID_COUNTRIES.includes(country));
+    }
     if (has('releaseYear')) {
         const y = Number.parseInt(src.releaseYear, 10);
         if (Number.isFinite(y)) payload.releaseYear = y;

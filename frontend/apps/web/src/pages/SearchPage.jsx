@@ -14,7 +14,7 @@ import {
 	SheetTrigger,
 } from '@/components/ui/sheet';
 
-const COUNTRIES = ['Korea', 'Turkey', 'India', 'Japan'];
+const COUNTRIES = ['South Korea', 'Japan', 'China', 'Thailand', 'India', 'USA', 'Taiwan'];
 const GENRES = [
 	'Romance', 'Thriller', 'Emotional', 'Revenge', 'Drama',
 	'Comedy', 'Action', 'Mystery', 'Fantasy', 'Suspense', 'Historical'
@@ -39,11 +39,6 @@ const SearchPage = () => {
 				? `/content/search?q=${encodeURIComponent(query)}`
 				: `/content?type=series&limit=1000`;
 
-			if (selectedCountries.length > 0)
-				url += `&language=${selectedCountries[0]}`;
-			if (selectedGenres.length > 0)
-				url += `&genre=${encodeURIComponent(selectedGenres[0])}`;
-
 			const res = await apiClient.request(url);
 
 			const items = res.items || [];
@@ -53,12 +48,22 @@ const SearchPage = () => {
 				title: item.title,
 				posterUrl: item.thumbnail,
 				genres: item.genre || [],
+				countries: item.countries || [],
+				country: item.country || item.countries?.[0] || '',
 				rating: item.rating,
 				description: item.description
 			}));
 
-			setDramas(mapped);
-			setTotalItems(res.pagination?.total || mapped.length);
+			const filtered = mapped.filter(item => {
+				const matchesCountry = selectedCountries.length === 0
+					|| selectedCountries.some(selectedCountry => item.countries?.includes(selectedCountry));
+				const matchesGenre = selectedGenres.length === 0
+					|| selectedGenres.some(selectedGenre => item.genres?.includes(selectedGenre));
+				return matchesCountry && matchesGenre;
+			});
+
+			setDramas(filtered);
+			setTotalItems(filtered.length);
 
 		} catch (error) {
 			console.error('Search error:', error);
@@ -84,7 +89,7 @@ const SearchPage = () => {
 		setSelectedCountries(prev =>
 			prev.includes(country)
 				? prev.filter(c => c !== country)
-				: [country]
+				: [...prev, country]
 		);
 	};
 

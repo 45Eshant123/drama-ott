@@ -3,7 +3,7 @@ import logger from '../utils/logger.js';
 
 const connectDB = async () => {
     try {
-        const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/dramastream';
+        const mongoUri = process.env.MONGODB_URI;
         
         await mongoose.connect(mongoUri, {
             useNewUrlParser: true,
