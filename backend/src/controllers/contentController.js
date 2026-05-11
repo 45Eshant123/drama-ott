@@ -268,8 +268,18 @@ export const addEpisode = async (req, res) => {
             return res.status(400).json({ message: "Invalid data" });
         }
 
+        const normalizedSeasonNumber = Number(seasonNumber);
+        if (!Number.isFinite(normalizedSeasonNumber)) {
+            return res.status(400).json({ message: "Invalid season number" });
+        }
+
+        const normalizedEpisodesToAdd = episodesToAdd.map((ep) => ({
+            ...ep,
+            episodeNumber: Number(ep?.episodeNumber)
+        }));
+
         const incomingNumbers = new Set();
-        for (const ep of episodesToAdd) {
+        for (const ep of normalizedEpisodesToAdd) {
             const episodeNum = Number(ep?.episodeNumber);
             if (!Number.isFinite(episodeNum)) {
                 return res.status(400).json({ message: "Invalid episode number" });
@@ -281,17 +291,17 @@ export const addEpisode = async (req, res) => {
         }
 
         const existingSeason = await Content.findOne(
-            { _id: id, "seasons.seasonNumber": seasonNumber },
+            { _id: id, "seasons.seasonNumber": normalizedSeasonNumber },
             { seasons: 1 }
         ).lean();
 
         const existingNumbers = new Set(
             existingSeason?.seasons
-                ?.find((s) => Number(s.seasonNumber) === Number(seasonNumber))
+                ?.find((s) => Number(s.seasonNumber) === normalizedSeasonNumber)
                 ?.episodes?.map((ep) => Number(ep.episodeNumber)) || []
         );
 
-        for (const ep of episodesToAdd) {
+        for (const ep of normalizedEpisodesToAdd) {
             const episodeNum = Number(ep?.episodeNumber);
             if (existingNumbers.has(episodeNum)) {
                 return res.status(409).json({ message: `Episode ${episodeNum} already exists` });
@@ -299,16 +309,20 @@ export const addEpisode = async (req, res) => {
             existingNumbers.add(episodeNum);
         }
 
-        const episodeNumbers = episodesToAdd.map((ep) => Number(ep.episodeNumber));
-        const sortedEpisodesToAdd = [...episodesToAdd].sort(
+        const episodeNumbers = normalizedEpisodesToAdd.map((ep) => Number(ep.episodeNumber));
+        const sortedEpisodesToAdd = [...normalizedEpisodesToAdd].sort(
             (a, b) => Number(a?.episodeNumber || 0) - Number(b?.episodeNumber || 0)
         );
 
         let record = await Content.findOneAndUpdate(
             {
                 _id: id,
-                "seasons.seasonNumber": seasonNumber,
-                "seasons.episodes.episodeNumber": { $nin: episodeNumbers }
+                seasons: {
+                    $elemMatch: {
+                        seasonNumber: normalizedSeasonNumber,
+                        "episodes.episodeNumber": { $nin: episodeNumbers }
+                    }
+                }
             },
             {
                 $push: {
@@ -325,12 +339,12 @@ export const addEpisode = async (req, res) => {
             record = await Content.findOneAndUpdate(
                 {
                     _id: id,
-                    seasons: { $not: { $elemMatch: { seasonNumber } } }
+                    seasons: { $not: { $elemMatch: { seasonNumber: normalizedSeasonNumber } } }
                 },
                 {
                     $push: {
                         seasons: {
-                            seasonNumber,
+                            seasonNumber: normalizedSeasonNumber,
                             episodes: sortedEpisodesToAdd
                         }
                     }
