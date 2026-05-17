@@ -17,7 +17,9 @@ import {
 const COUNTRIES = ['South Korea', 'Japan', 'China', 'Thailand', 'India', 'USA', 'Taiwan'];
 const GENRES = [
 	'Romance', 'Thriller', 'Emotional', 'Revenge', 'Drama',
-	'Comedy', 'Action', 'Mystery', 'Fantasy', 'Suspense', 'Historical'
+	'Comedy', 'Action', 'Mystery', 'Fantasy', 'Suspense', 'Historical' ,'Family', 'Sci-Fi', 'Horror', 'Crime', 'Adventure', 'Slice of Life',
+	'Supernatural', 'War', 'Sports', 'Music', 'School', 'Medical', 'Legal', 'Political', 'Psychological',
+	'Zombie', 'Vampire'
 ];
 
 const SearchPage = () => {
@@ -37,7 +39,7 @@ const SearchPage = () => {
 		try {
 			let url = query
 				? `/content/search?q=${encodeURIComponent(query)}`
-				: `/content?type=series&limit=1000`;
+				: `/content?limit=1000`;
 
 			const res = await apiClient.request(url);
 

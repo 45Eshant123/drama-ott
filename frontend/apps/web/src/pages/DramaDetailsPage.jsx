@@ -94,7 +94,7 @@ const DramaDetailsPage = () => {
 					}
 				}
 
-				const all = await apiClient.request('/content?type=series');
+				const all = await apiClient.request('/content');
 				const related = (all.items || [])
 					.map((entry) => ({
 						id: entry.id,

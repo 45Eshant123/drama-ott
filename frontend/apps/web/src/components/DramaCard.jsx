@@ -5,10 +5,18 @@ import { Star, Play } from 'lucide-react';
 const DramaCard = ({ drama, layout = 'grid' }) => {
     if (!drama) return null;
 
-    const firstEpisodeNumber = Array.isArray(drama.episodes) && drama.episodes.length > 0
-        ? Number(drama.episodes[0]?.episodeNumber) || 1
-        : 1;
-    const watchHref = drama.episodes && drama.episodes.length > 0
+    const seasonEpisodes = drama.seasons?.[0]?.episodes || [];
+
+    const firstEpisodeNumber =
+        drama.episodes?.length > 0
+            ? Number(drama.episodes[0]?.episodeNumber) || 1
+            : Number(seasonEpisodes[0]?.episodeNumber) || 1;
+
+    const hasEpisodes =
+        drama.episodes?.length > 0 ||
+        seasonEpisodes.length > 0;
+
+    const watchHref = hasEpisodes
         ? `/watch/${drama.id}?ep=${firstEpisodeNumber}`
         : `/drama/${drama.id}`;
 

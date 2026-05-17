@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { Button } from '@/components/ui/button';
 import { Search, Menu, User, LogOut, Film } from 'lucide-react';
+import logoImage from '../../logo/logo.png';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -37,7 +38,7 @@ const Header = () => {
                 {/* Logo & Desktop Nav */}
                 <div className="flex items-center gap-8">
                     <Link to="/" className="flex items-center gap-2 text-primary transition-transform hover:scale-105">
-                        <Film className="h-6 w-6" />
+                        <img src={logoImage} alt="DramaStream logo" className="h-9 w-auto object-contain" />
                         <span className="text-xl font-bold tracking-tight">DramaStream</span>
                     </Link>
 
@@ -117,7 +118,8 @@ const Header = () => {
                         <SheetContent side="right" className="w-[300px] sm:w-[400px]">
                             <SheetHeader>
                                 <SheetTitle className="text-left flex items-center gap-2 text-primary">
-                                    <Film className="h-5 w-5" /> DramaStream
+                                    <img src={logoImage} alt="DramaStream logo" className="h-6 w-auto object-contain" />
+                                    DramaStream
                                 </SheetTitle>
                             </SheetHeader>
                             <div className="flex flex-col gap-6 mt-8">

@@ -31,7 +31,7 @@ const HomePage = () => {
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const res = await apiClient.request("/content?type=series");
+			const res = await apiClient.request("/content");
 
 				const items = (res.items || []).map(item => ({
 					id: item.id,

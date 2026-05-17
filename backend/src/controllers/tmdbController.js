@@ -1,7 +1,8 @@
 import Content from "../models/Content.js";
 import {
     fetchTrailerUrl,
-    fetchPopularSeries
+    fetchPopularSeries,
+    fetchPopularMovies
 } from "../services/tmdbService.js";
 
 const IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
@@ -138,6 +139,73 @@ const normalizeEpisodeEntry = (entry) => {
     if (entry.duration) out.duration = entry.duration;
 
     return out;
+};
+
+export const importMovie = async (req, res) => {
+    try {
+        const movies = await fetchPopularMovies();
+
+        const formatted = await mapWithConcurrency(
+            movies,
+            TRAILER_CONCURRENCY,
+            async (m) => {
+                let trailerUrl = "";
+
+                try {
+                    // 🔥 ALWAYS FETCH TRAILER
+                    trailerUrl = await fetchTrailerUrl("movie", m.id);
+                } catch {
+                    trailerUrl = "";
+                }
+
+                return {
+                    tmdbId: m.id,
+                    title: m.title,
+                    type: "movie",
+
+                    thumbnail: m.poster_path
+                        ? `${IMAGE_BASE}${m.poster_path}`
+                        : "",
+
+                    rating: m.vote_average,
+
+                    releaseYear:
+                        Number.parseInt(
+                            m.release_date?.split("-")[0],
+                            10
+                        ) || undefined,
+
+                    description: m.overview,
+
+                    // ✅ Trailer saved
+                    trailerUrl,
+
+                    source: "tmdb"
+                };
+            }
+        );
+
+        for (const item of formatted) {
+            await Content.updateOne(
+                { tmdbId: item.tmdbId },
+                { $set: item },
+                { upsert: true }
+            );
+        }
+
+        res.json({
+            message: "Movies imported successfully",
+            imported: formatted.length
+        });
+
+    } catch (error) {
+        const message =
+            error?.response?.data?.status_message ||
+            error?.message ||
+            "Failed to import movies from TMDB";
+
+        res.status(500).json({ error: message });
+    }
 };
 
 export const addEpisodesFromLinks = async (req, res) => {

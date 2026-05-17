@@ -592,14 +592,14 @@ PATCH /api/content/69f327a3a5c0e4d9ecb3caab/episodes
   "seasonNumber": 1,
   "episodeNumber": 1,
   "update": {
-    "title": "Updated Episode 1 Title",
+    "title": "War Machine",
     "servers": [
       {
-        "name": "Streamtape",
-        "url": "https://streamtape.com/e/newVideo.mp4"
+        "name": "vidmoly",
+        "url": "https://vidmoly.biz/embed-um5b0bao1thk.html"
       }
     ],
-    "thumbnail": "https://newThumb.jpg"
+    "thumbnail": "https://image.tmdb.org/t/p/w500/5txx39hgkMY6iskk3oOX7nU34bE.jpg"
   }
 }
 ```
